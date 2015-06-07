@@ -3,6 +3,7 @@ package predicate;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 /**
  * Demonstrates some usage of Predicate and Optional
  *
@@ -50,6 +51,7 @@ public class PredicateOptionalRunner {
 		Predicate<Person> hasAge = x -> x.age == 36;
 		Predicate<Person> hasName = x -> x.name.equals("Jill");
 		
+		
 		//use and() to match multiple predicates
 		Optional<Person> result = findOne(people, hasAge.and(hasName));
 		if (result.isPresent());
@@ -65,6 +67,27 @@ public class PredicateOptionalRunner {
 		result = findOne(people, hasName.negate());
 		if (result.isPresent());
 			System.out.println("We found " + result.get().name);
+			
+		//filter list
+		List<Person> newList = people.stream().filter(getLessThanWagePredicate(40000)
+				.and(getNameBeginsPredicate('J')))
+				.collect(Collectors.<Person>toList());
+		
+		for (Person p : newList)
+			System.out.println(p.name);
+	}
+	
+	/**
+	 * encapsulate in method to use variable
+	 * @param wage
+	 * @return
+	 */
+	private static Predicate<Person> getLessThanWagePredicate(int wage){
+		return x -> x.wage < wage;
+	}
+	
+	private static Predicate<Person> getNameBeginsPredicate(char firstLetter){
+		return x -> x.name.charAt(0) == firstLetter;
 	}
 	
 }
