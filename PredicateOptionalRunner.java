@@ -1,5 +1,6 @@
 package predicate;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -26,6 +27,33 @@ public class PredicateOptionalRunner {
 				return Optional.of(item);
 		
 		return Optional.empty();
+	}
+	
+	/* list without stream */
+	public static <T> Optional<List<T> > findAll(List<T> list, Predicate<? super T> func){
+		List<T> newList = new LinkedList<T>();
+		//each predicate uses test() from functional interface to return a boolean
+		for (T item : list)
+			if(func.test(item)) 
+				newList.add(item);
+
+		return Optional.ofNullable(newList);
+
+	}
+	
+	/* find max */
+	public static <T extends Comparable> T findMax(List<T> stuff, int begin){
+		
+		T max = null;
+		for (int i = begin; i < stuff.size(); i++){
+			if (i == begin) max = stuff.get(i);
+			
+			if (stuff.get(i).compareTo(max) > 0){
+				max = stuff.get(i);
+			}	
+		}
+		
+		return max;
 	}
 	
 	public static void main(String[] args) {
@@ -63,11 +91,17 @@ public class PredicateOptionalRunner {
 		if (result.isPresent());
 			System.out.println("We found " + result.get().name + " this time.");
 			
+		Optional<List <Person>>resultList = findAll(people,hasWage);
+		List<Person> searchResults = resultList.get();
+		System.out.println("multiple results...");
+		for (Person person : searchResults)
+			System.out.println(person.name);
+		
 		//negate
 		result = findOne(people, hasName.negate());
 		if (result.isPresent());
 			System.out.println("We found " + result.get().name);
-			
+
 		//filter list
 		List<Person> newList = people.stream().filter(getLessThanWagePredicate(40000)
 				.and(getNameBeginsPredicate('J')))
@@ -75,6 +109,8 @@ public class PredicateOptionalRunner {
 		
 		for (Person p : newList)
 			System.out.println(p.name);
+		
+		
 	}
 	
 	/**
